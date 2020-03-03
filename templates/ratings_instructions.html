@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="jumbotron">
+  <form method="POST">
+  <p> Welcome to Phase III. We want you to think about each person and rate them on the following attributes.
+    It is best to use the middle sparingly, please.</p>
+  {{ form.hidden_tag() }}
+  {{ form.submit() }}
+</form>
+</div>
+{% endblock %}

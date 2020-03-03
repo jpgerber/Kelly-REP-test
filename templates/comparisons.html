@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="jumbotron", ul{
+    list-style-type: none;
+}>
+  <p>  Which of the following three people is least like the other two? </p>
+  <form method="POST">
+      {{ form.hidden_tag() }}
+      {% for subfield in form.oddoneout %}
+          <tr>
+              <td>{{ subfield }}</td>
+              <td>{{ subfield.label }}</td>
+              <br>
+          </tr>
+      {% endfor %}
+      <br>
+      {{ form.submit}}
+  </form>
+</div>
+{% endblock %}
