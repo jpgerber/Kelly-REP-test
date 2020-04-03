@@ -4,6 +4,9 @@
     list-style-type: none;
 }>
   <p>  Well done, you have submitted your data. Click to see your results.</p>
-  <p> You said " {{data_name}}: {{data_chr}}""</p>
+  <p> {% for table in tables %}
+            {{titles[loop.index]}}
+            {{ table|safe }}
+{% endfor %}</p>
 </div>
 {% endblock %}
