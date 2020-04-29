@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="jumbotron">
+<br>
+  <form method="POST">
+      {{ form.hidden_tag() }}
+<p>In what important way are {{threeroles[0]}} and {{threeroles[1]}} alike? {{form.positive_construct_pole}}</p>
+<p>In what way is {{oddone}} not like the other two? {{form.negative_construct_pole}}</p>
+{{ form.submit() }}
+  </form>
+</div>
+{% endblock %}

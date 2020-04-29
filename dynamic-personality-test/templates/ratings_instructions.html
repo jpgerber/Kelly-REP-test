@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="jumbotron">
+  <form method="POST">
+  <p> Welcome to Phase III. In this final part of the survey, there are 16 pages. On each, we want you to think about each person and rate them on the following attributes.
+    It is best to use the middle as little as possible, please.</p>
+  <p> Important note: Please do not click backwards in your browser during this part of the survey.
+  {{ form.hidden_tag() }}
+  {{ form.submit() }}
+</form>
+</div>
+{% endblock %}

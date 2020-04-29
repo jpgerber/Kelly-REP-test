@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="jumbotron">
+  <h1>{{target}}</h1>
+<br>
+Take a moment to think about {{target}} and who they are.<br>
+Now, please rate {{target}} on each of the following characteristics:
+  <form method="POST">
+      {{ form.hidden_tag() }}
+
+
+<table class='table'>
+<thead><tr><tn></th><th></th><th>Is attribute on left</th><th>Neither or equal</th><th>Is attribute on right</th><th></th></tr></thead>
+<tbody>
+<tr><td>{{ construct1pos_toshow}} </td>{{form.hidden_tag()}}
+    {% for subfield in form.rating_const1 %}
+      <td>{{form.hidden_tag()}}{{ subfield }}</td>
+    {% endfor %}
+    <td> {{construct1neg_toshow}}</td></tr>
+
+<tr><td> {{construct2pos_toshow}} </td>{{form.hidden_tag()}}{% for subfield in form.rating_const2 %}<td>{{form.hidden_tag()}}{{ subfield }}</td>
+{% endfor %}<td> {{construct2neg_toshow}} </td></tr>
+<tr><td> {{construct3pos_toshow}} </td>{{form.hidden_tag()}}{% for subfield in form.rating_const3 %}<td>{{form.hidden_tag()}}{{ subfield }}</td>
+{% endfor %}<td> {{construct3neg_toshow}} </td></tr>
+<tr><td> {{construct4pos_toshow}} </td>{{form.hidden_tag()}}{% for subfield in form.rating_const4 %}<td>{{form.hidden_tag()}}{{ subfield }}</td>
+{% endfor %}<td> {{construct4neg_toshow}} </td></tr>
+<tr><td> {{construct5pos_toshow}} </td>{{form.hidden_tag()}}{% for subfield in form.rating_const5 %}<td>{{form.hidden_tag()}}{{ subfield }}</td>
+{% endfor %}<td> {{construct5neg_toshow}} </td></tr>
+<tr><td> {{construct6pos_toshow}} </td>{{form.hidden_tag()}}{% for subfield in form.rating_const6 %}<td>{{form.hidden_tag()}}{{ subfield }}</td>
+{% endfor %}<td> {{construct6neg_toshow}} </td></tr>
+<tr><td> {{construct7pos_toshow}} </td>{{form.hidden_tag()}}{% for subfield in form.rating_const7 %}<td>{{form.hidden_tag()}}{{ subfield }}</td>
+{% endfor %}<td> {{construct7neg_toshow}} </td></tr>
+<tr><td> {{construct8pos_toshow}} </td>{{form.hidden_tag()}}{% for subfield in form.rating_const8 %}<td>{{form.hidden_tag()}}{{ subfield }}</td>
+{% endfor %}<td> {{construct8neg_toshow}} </td></tr>
+<tr><td> {{construct9pos_toshow}} </td>{{form.hidden_tag()}}{% for subfield in form.rating_const9 %}<td>{{form.hidden_tag()}}{{ subfield }}</td>
+{% endfor %}<td> {{construct9neg_toshow}} </td></tr>
+<tr><td> {{construct10pos_toshow}} </td>{{form.hidden_tag()}}{% for subfield in form.rating_const10 %}<td>{{form.hidden_tag()}}{{ subfield }}</td>
+{% endfor %}<td> {{construct10neg_toshow}} </td></tr>
+<tr><td> {{construct11pos_toshow}} </td>{{form.hidden_tag()}}{% for subfield in form.rating_const11 %}<td>{{form.hidden_tag()}}{{ subfield }}</td>
+{% endfor %}<td> {{construct11neg_toshow}} </td></tr>
+<tr><td> {{construct12pos_toshow}} </td>{{form.hidden_tag()}}{% for subfield in form.rating_const12 %}<td>{{form.hidden_tag()}}{{ subfield }}</td>
+{% endfor %}<td> {{construct12neg_toshow}} </td></tr>
+<tr><td> {{construct13pos_toshow}} </td>{{form.hidden_tag()}}{% for subfield in form.rating_const13 %}<td>{{form.hidden_tag()}}{{ subfield }}</td>
+{% endfor %}<td> {{construct13neg_toshow}} </td></tr>
+<tr><td> {{construct14pos_toshow}} </td>{{form.hidden_tag()}}{% for subfield in form.rating_const14 %}<td>{{form.hidden_tag()}}{{ subfield }}</td>
+{% endfor %}<td> {{construct14neg_toshow}} </td></tr>
+<tr><td> {{construct15pos_toshow}} </td>{{form.hidden_tag()}}{% for subfield in form.rating_const15 %}<td>{{form.hidden_tag()}}{{ subfield }}</td>
+{% endfor %}<td> {{construct15neg_toshow}} </td></tr>
+</tbody>
+</table>
+<br>
+{{ form.submit() }}
+
+  </form>
+</div>
+{% endblock %}
