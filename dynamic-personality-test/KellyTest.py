@@ -37,7 +37,8 @@ get_people_names, get_ratings_matrix, get_self_ratings, make_loadings_matrix, ma
 # Import the results displays
 from results import loadings_describer, draw_loadings_heatmap, draw_targets_heatmap, draw_standing_charts
 
-'''# Enclosed here are some things I did to test adding and deleting users by a session. It will not work well not because the fields
+'''
+# Enclosed here are some things I did to test adding and deleting users by a session. It will not work well because the fields
 #have grown larger
 
 # Looking at everything in database
@@ -45,7 +46,7 @@ test_get = SurveyData.query.all()
 for u in test_get:
     print(u.role01, u.timestamp, u.rating_p15_const15, u.rating_p16_const15)
 
-# Deleting all current users
+# Deleting all current users (useful for development!)
 for u in test_get:
     db_session.delete(u)
 print(test_get)
@@ -62,32 +63,6 @@ print(test_get2)'''
 #print(test_get.oddgoose03)
 # Checking that I did return the last row
 #print('Ordering the database gives the final user role1 as {}'.format(test_get.role01))
-
-test_get = SurveyData.query.all()
-for u in test_get:
-    print(u.role01, u.timestamp, u.rating_p15_const15, u.rating_p16_const15)
-
-## Trying a function to update the database with fields from FORMS
-def field_updater(dictionary_of_databasefields_and_formfields):
-    ''' This function takes a dictionary of database and HTML-form  key-value pairs
-    and uses them to update the most recent user's values in the database. For example,
-    inputting {'oddgoose01':'role01'} would update the database field oddgoose01 with the
-    field role01 from the HTML form.'''
-    user_to_update = db_session.query(SurveyData).order_by(SurveyData.id.desc()).first()
-    # For each key-value pair, we go
-    for pair in dictionary_of_databasefields_and_formfields:
-        print('I am reading {}'.format(pair))
-        print('The type of user_to_update is {}'.format(type(user_to_update)))
-        print(dictionary_of_databasefields_and_formfields[pair])
-#### The line with the problem is below, it returns .pair instead of the key name #####################
-        user_to_update.pair = session.get(dictionary_of_databasefields_and_formfields[pair])
-        print('The data we took was {}'.format(session.get(dictionary_of_databasefields_and_formfields[pair])))
-        #print('The field we looked to replace was {}'.format(user_to_update.pair))
-        # Add + commit the new data
-    db_session.add(user_to_update)
-    db_session.commit()
-    user_to_update = db_session.query(SurveyData).order_by(SurveyData.id.desc()).first()
-    print(user_to_update.oddgoose01)
 
 ############################################
         # VIEWS WITH FORMS
@@ -112,16 +87,6 @@ timestamp = datetime.utcnow
 ##################### Defining the views ##############################################################
 
 ######## Start with a home page ####################################################
-# Test df
-
-df = pd.DataFrame({'A': [0, 1, 2, 3, 4],
-                   'B': [5, 6, 7, 8, 9],
-                   'C': ['a', 'b', 'c--', 'd', 'e']})
-# to put in the return parentheses
-#tables=[df.to_html(classes='data')], titles=df.columns.values
-
-#df = pd.DataFrame
-
 @app.route('/', methods=['GET','POST'])
 def index():
     # Makes sure the current session is clear first
@@ -165,7 +130,6 @@ def roles():
         return redirect(url_for('comparison1'))
     return render_template('roles2.html', form=form)
 
-
 ############## Phase II - Construct Generation #################################################################
 # 2.1 ###################### Comparison set 1 (roles 10, 11, 12) ########################################
 
@@ -174,6 +138,7 @@ def roles():
 def comparison1():
     # Name the form we will use
     form = ComparisonForm()
+    title = "Part II - Constructs (1 of 15)"
     # Update the data to print with the form
     form.oddoneout.choices = [('1', session.get('role10')), ('2', session.get('role11')), ('3', session.get('role12'))]
     # if the form is submitted
@@ -186,7 +151,7 @@ def comparison1():
         # And move on to the next page
         return redirect(url_for('construct1_pos'))
     # show the form
-    return render_template('comparisons.html', form=form)
+    return render_template('comparisons.html', title=title, form=form)
 
 @app.route('/construct1a', methods=['GET','POST'])
 def construct1_pos():
@@ -215,6 +180,7 @@ def construct1_neg():
 @app.route('/comparison2', methods=['GET','POST'])
 def comparison2():
     form = ComparisonForm()
+    title = "Part II - Constructs (2 of 15)"
     form.oddoneout.choices = [('1',session.get('role06')), ('2', session.get('role13')), ('3', session.get('role14'))]
     if request.method == 'POST':
         session['oddgoose02'] = form.oddoneout.data
@@ -222,7 +188,7 @@ def comparison2():
         db_session.query(SurveyData).filter_by(id=session['user_id']).update({'oddgoose01':session['oddgoose01']})
         db_session.commit()
         return redirect(url_for('construct2_pos'))
-    return render_template('comparisons.html', form=form)
+    return render_template('comparisons.html', title=title, form=form)
 
 @app.route('/construct2a', methods=['GET','POST'])
 def construct2_pos():
@@ -251,6 +217,7 @@ def construct2_neg():
 @app.route('/comparison3', methods=['GET','POST'])
 def comparison3():
     form = ComparisonForm()
+    title = "Part II - Constructs (3 of 15)"
     form.oddoneout.choices = [('1',session.get('role06')), ('2', session.get('role09')), ('3', session.get('role12'))]
     if request.method == 'POST':    #validate_on_submit()
         session['oddgoose03'] = form.oddoneout.data
@@ -258,7 +225,7 @@ def comparison3():
         db_session.query(SurveyData).filter_by(id=session['user_id']).update({'oddgoose01':session['oddgoose03']})
         db_session.commit()
         return redirect(url_for('construct3_pos'))
-    return render_template('comparisons.html', form=form)
+    return render_template('comparisons.html', title=title, form=form)
 
 @app.route('/construct3a', methods=['GET','POST'])
 def construct3_pos():
@@ -287,13 +254,14 @@ def construct3_neg():
 @app.route('/comparison4', methods=['GET','POST'])
 def comparison4():
     form = ComparisonForm()
+    title = "Part II - Constructs (4 of 15)"
     form.oddoneout.choices = [('1',session.get('role03')), ('2', session.get('role14')), ('3', session.get('role15'))]
     if request.method == 'POST':    #validate_on_submit()
         session['oddgoose04'] = form.oddoneout.data
         db_session.query(SurveyData).filter_by(id=session['user_id']).update({'oddgoose04':session['oddgoose04']})
         db_session.commit()
         return redirect(url_for('construct4_pos'))
-    return render_template('comparisons.html', form=form)
+    return render_template('comparisons.html', title=title, form=form)
 
 @app.route('/construct4a', methods=['GET','POST'])
 def construct4_pos():
@@ -322,13 +290,14 @@ def construct4_neg():
 @app.route('/comparison5', methods=['GET','POST'])
 def comparison5():
     form = ComparisonForm()
+    title = "Part II - Constructs (5 of 15)"
     form.oddoneout.choices = [('1',session.get('role04')), ('2', session.get('role11')), ('3', session.get('role13'))]
     if request.method == 'POST':    #validate_on_submit()
         session['oddgoose05'] = form.oddoneout.data
         db_session.query(SurveyData).filter_by(id=session['user_id']).update({'oddgoose05':session['oddgoose05']})
         db_session.commit()
         return redirect(url_for('construct5_pos'))
-    return render_template('comparisons.html', form=form)
+    return render_template('comparisons.html', title=title, form=form)
 
 @app.route('/construct5a', methods=['GET','POST'])
 def construct5_pos():
@@ -357,13 +326,14 @@ def construct5_neg():
 @app.route('/comparison6', methods=['GET','POST'])
 def comparison6():
     form = ComparisonForm()
+    title = "Part II - Constructs (6 of 15)"
     form.oddoneout.choices = [('1',session.get('role02')), ('2', session.get('role09')), ('3', session.get('role10'))]
     if request.method == 'POST':    #validate_on_submit()
         session['oddgoose06'] = form.oddoneout.data
         db_session.query(SurveyData).filter_by(id=session['user_id']).update({'oddgoose06':session['oddgoose06']})
         db_session.commit()
         return redirect(url_for('construct6_pos'))
-    return render_template('comparisons.html', form=form)
+    return render_template('comparisons.html', title=title, form=form)
 
 @app.route('/construct6a', methods=['GET','POST'])
 def construct6_pos():
@@ -392,13 +362,14 @@ def construct6_neg():
 @app.route('/comparison7', methods=['GET','POST'])
 def comparison7():
     form = ComparisonForm()
+    title = "Part II - Constructs (7 of 15)"
     form.oddoneout.choices = [('1',session.get('role05')), ('2', session.get('role07')), ('3', session.get('role08'))]
     if request.method == 'POST':    #validate_on_submit()
         session['oddgoose07'] = form.oddoneout.data
         db_session.query(SurveyData).filter_by(id=session['user_id']).update({'oddgoose07':session['oddgoose07']})
         db_session.commit()
         return redirect(url_for('construct7_pos'))
-    return render_template('comparisons.html', form=form)
+    return render_template('comparisons.html', title=title, form=form)
 
 @app.route('/construct7a', methods=['GET','POST'])
 def construct7_pos():
@@ -427,13 +398,14 @@ def construct7_neg():
 @app.route('/comparison8', methods=['GET','POST'])
 def comparison8():
     form = ComparisonForm()
+    title = "Part II - Constructs (8 of 15)"
     form.oddoneout.choices = [('1',session.get('role09')), ('2', session.get('role11')), ('3', session.get('role15'))]
     if request.method == 'POST':    #validate_on_submit()
         session['oddgoose08'] = form.oddoneout.data
         db_session.query(SurveyData).filter_by(id=session['user_id']).update({'oddgoose08':session['oddgoose08']})
         db_session.commit()
         return redirect(url_for('construct8_pos'))
-    return render_template('comparisons.html', form=form)
+    return render_template('comparisons.html', title=title, form=form)
 
 @app.route('/construct8a', methods=['GET','POST'])
 def construct8_pos():
@@ -462,13 +434,14 @@ def construct8_neg():
 @app.route('/comparison9', methods=['GET','POST'])
 def comparison9():
     form = ComparisonForm()
+    title = "Part II - Constructs (9 of 15)"
     form.oddoneout.choices = [('1',session.get('role01')), ('2', session.get('role04')), ('3', session.get('role07'))]
     if request.method == 'POST':    #validate_on_submit()
         session['oddgoose09'] = form.oddoneout.data
         db_session.query(SurveyData).filter_by(id=session['user_id']).update({'oddgoose09':session['oddgoose09']})
         db_session.commit()
         return redirect(url_for('construct9_pos'))
-    return render_template('comparisons.html', form=form)
+    return render_template('comparisons.html', title=title, form=form)
 
 @app.route('/construct9a', methods=['GET','POST'])
 def construct9_pos():
@@ -497,13 +470,14 @@ def construct9_neg():
 @app.route('/comparison10', methods=['GET','POST'])
 def comparison10():
     form = ComparisonForm()
+    title = "Part II - Constructs (10 of 15)"
     form.oddoneout.choices = [('1',session.get('role03')), ('2', session.get('role05')), ('3', session.get('role13'))]
     if request.method == 'POST':    #validate_on_submit()
         session['oddgoose10'] = form.oddoneout.data
         db_session.query(SurveyData).filter_by(id=session['user_id']).update({'oddgoose10':session['oddgoose10']})
         db_session.commit()
         return redirect(url_for('construct10_pos'))
-    return render_template('comparisons.html', form=form)
+    return render_template('comparisons.html', title=title, form=form)
 
 @app.route('/construct10a', methods=['GET','POST'])
 def construct10_pos():
@@ -532,13 +506,14 @@ def construct10_neg():
 @app.route('/comparison11', methods=['GET','POST'])
 def comparison11():
     form = ComparisonForm()
+    title = "Part II - Constructs (11 of 15)"
     form.oddoneout.choices = [('1',session.get('role08')), ('2', session.get('role12')), ('3', session.get('role14'))]
     if request.method == 'POST':    #validate_on_submit()
         session['oddgoose11'] = form.oddoneout.data
         db_session.query(SurveyData).filter_by(id=session['user_id']).update({'oddgoose11':session['oddgoose11']})
         db_session.commit()
         return redirect(url_for('construct11_pos'))
-    return render_template('comparisons.html', form=form)
+    return render_template('comparisons.html', title=title, form=form)
 
 @app.route('/construct11a', methods=['GET','POST'])
 def construct11_pos():
@@ -567,13 +542,14 @@ def construct11_neg():
 @app.route('/comparison12', methods=['GET','POST'])
 def comparison12():
     form = ComparisonForm()
+    title = "Part II - Constructs (12 of 15)"
     form.oddoneout.choices = [('1',session.get('role04')), ('2', session.get('role05')), ('3', session.get('role15'))]
     if request.method == 'POST':    #validate_on_submit()
         session['oddgoose12'] = form.oddoneout.data
         db_session.query(SurveyData).filter_by(id=session['user_id']).update({'oddgoose12':session['oddgoose12']})
         db_session.commit()
         return redirect(url_for('construct12_pos'))
-    return render_template('comparisons.html', form=form)
+    return render_template('comparisons.html', title=title, form=form)
 
 @app.route('/construct12a', methods=['GET','POST'])
 def construct12_pos():
@@ -602,13 +578,14 @@ def construct12_neg():
 @app.route('/comparison13', methods=['GET','POST'])
 def comparison13():
     form = ComparisonForm()
+    title = "Part II - Constructs (13 of 15)"
     form.oddoneout.choices = [('1',session.get('role01')), ('2', session.get('role02')), ('3', session.get('role08'))]
     if request.method == 'POST':    #validate_on_submit()
         session['oddgoose13'] = form.oddoneout.data
         db_session.query(SurveyData).filter_by(id=session['user_id']).update({'oddgoose13':session['oddgoose13']})
         db_session.commit()
         return redirect(url_for('construct13_pos'))
-    return render_template('comparisons.html', form=form)
+    return render_template('comparisons.html', title=title, form=form)
 
 @app.route('/construct13a', methods=['GET','POST'])
 def construct13_pos():
@@ -637,13 +614,14 @@ def construct13_neg():
 @app.route('/comparison14', methods=['GET','POST'])
 def comparison14():
     form = ComparisonForm()
+    title = "Part II - Constructs (14 of 15)"
     form.oddoneout.choices = [('1',session.get('role02')), ('2', session.get('role03')), ('3', session.get('role07'))]
     if request.method == 'POST':    #validate_on_submit()
         session['oddgoose14'] = form.oddoneout.data
         db_session.query(SurveyData).filter_by(id=session['user_id']).update({'oddgoose14':session['oddgoose14']})
         db_session.commit()
         return redirect(url_for('construct14_pos'))
-    return render_template('comparisons.html', form=form)
+    return render_template('comparisons.html', title=title, form=form)
 
 @app.route('/construct14a', methods=['GET','POST'])
 def construct14_pos():
@@ -672,13 +650,14 @@ def construct14_neg():
 @app.route('/comparison15', methods=['GET','POST'])
 def comparison15():
     form = ComparisonForm()
+    title = "Part II - Constructs (15 of 15)"
     form.oddoneout.choices = [('1',session.get('role01')), ('2', session.get('role06')), ('3', session.get('role10'))]
     if request.method == 'POST':    #validate_on_submit()
         session['oddgoose15'] = form.oddoneout.data
         db_session.query(SurveyData).filter_by(id=session['user_id']).update({'oddgoose15':session['oddgoose15']})
         db_session.commit()
         return redirect(url_for('construct15_pos'))
-    return render_template('comparisons.html', form=form)
+    return render_template('comparisons.html', title=title, form=form)
 
 @app.route('/construct15a', methods=['GET','POST'])
 def construct15_pos():
@@ -700,12 +679,6 @@ def construct15_neg():
         session['construct15neg'] = form.negative_construct_pole.data
         db_session.query(SurveyData).filter_by(id=session['user_id']).update({'construct15neg':session['construct15neg']})
         db_session.commit()
-#        user_updated = db_session.query(SurveyData).order_by(SurveyData.id.desc()).first()
-#        print(dir(user_updated))
-#        print(dir(user_updated))
-#        rating_var_names = {'self.rating_p{}_const{}'.format(i+1, j+1) : ' rating_p{}_const{}'.format(i+1, j+1) for i in range(15) for j in range(15)}
-#        for val in rating_var_names:
-#            print(rating_var_names[val])
         return redirect(url_for('rating_instructions'))
     return render_template('construct_neg.html', form=form, pos_construct_to_feed=pos_construct_to_feed)
 

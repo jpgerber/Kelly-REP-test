@@ -3,15 +3,13 @@
 <div class="jumbotron">
   <form method="POST">
   <h1>Welcome to the best personality test you will ever take.</h1>
-  <p>If you complete this test, you will be given the most in-depth and personalized description of your personality</p>
-  <p>This personality test has three sections of varying length and takes about 30 minutes to complete. Each section has its own short set of instructions.</p>
+  <p>If you complete this test, you will be given a personalized interpretation of how you view others and yourself. Most people
+  find the information gained from this test to be very helpful and insightful.</p>
+  <p>This personality test has three sections of varying length and takes about 30 minutes to complete. Each section has its own short set of instructions. There are no wrong answers.</p>
   <p> Once you complete this test, machine learning algorithms will be used to assess your personality.</p>
+  <p> Please avoid going backwards and re-entering data. </p>    
   {{ form.hidden_tag() }}
   {{ form.submit() }}
 </form>
-{% for table in tables %}
-            {{titles[loop.index]}}
-            {{ table|safe }}
-{% endfor %}
 </div>
 {% endblock %}

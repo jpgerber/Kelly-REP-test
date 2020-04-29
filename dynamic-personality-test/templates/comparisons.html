@@ -3,11 +3,12 @@
 <div class="jumbotron", ul{
     list-style-type: none;
 }>
-  <p>  Please think about the following three people:   {% for subfield in form.oddoneout %}
+<h3> {{title}} </h3>
+<h4>  <p>  Please think about the following three people:   {% for subfield in form.oddoneout %}
         <tr>
             <td>{{ subfield.label }}</td>,
         </tr>
-    {% endfor %} </p>
+    {% endfor %} </p> </h4>
 
     <p>Two of them are alike in some important way.</p>
     <p> Which of the three is the odd one out? </p>
