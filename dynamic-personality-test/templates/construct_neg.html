@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="jumbotron">
-  <h1>Constructs</h1>
 <br>
   <form method="POST">
       {{ form.hidden_tag() }}
-<p>What is the opposite of '{{pos_construct_to_feed}}'?    {{form.negative_construct_pole}}</p>
+<p>What is the opposite of '{{pos_construct_to_feed}}'?  </p>
+<p>  {{form.negative_construct_pole}}</p>
 {{ form.submit() }}
   </form>
 </div>

@@ -13,7 +13,7 @@ def readme():
 setup(
     install_requires=[
       	'pypandoc>=1.4'
-    ]
+    ],
     name='dynamic-personality-test',
     version='0.1',
     description='An implementation of an idiographic personality test, originally by George Kelly',
@@ -25,6 +25,5 @@ setup(
     url='https://github.com/jpgerber/dynamic-personality-test',
     author='Jonathan Gerber',  # Substitute your name
     author_email='jonathanpaulgerber@gmail.com',  # Substitute your email
-    license='MIT',
-    packages=['dynamic-personality-test'],
+    license='MIT'
 )

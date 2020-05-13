@@ -17,7 +17,6 @@ from factor_analyzer import FactorAnalyzer
 from kneed import KneeLocator
 from io import BytesIO
 import base64
-from scipy.cluster import hierarchy
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 from matplotlib import  tight_bbox
 
@@ -82,10 +81,21 @@ def get_construct_names():
 
 # Names for each role
 def get_people_names():
-    '''Returns a list of the person names for each role'''
-    return [session['role01'], session['role02'], session['role03'], session['role04'], session['role05'],
+    '''Returns a list of the person names for each role minus any duplicates'''
+    list_of_names = [session['role01'], session['role02'], session['role03'], session['role04'], session['role05'],
     session['role06'], session['role07'], session['role08'], session['role09'], session['role10'],
     session['role11'], session['role12'], session['role13'], session['role14'], session['role15']]
+    #list_of_names = pd.Series([session['role01'], session['role02'], session['role03'], session['role04'], session['role05'],
+    #session['role06'], session['role07'], session['role08'], session['role09'], session['role10'],
+    #session['role11'], session['role12'], session['role13'], session['role14'], session['role15']])
+    #print("BAM!")
+    #print(list_of_names)
+    #rev_list = list_of_names.loc[~duplicates_series].to_list()
+    #print(duplicates_series.values)
+    #print('BOOO!')
+    #print(rev_list)
+    #return rev_list
+    return list_of_names
 
 # Df (and wrangling) of main ratings matrix
 def get_ratings_matrix():
@@ -185,7 +195,8 @@ def get_self_ratings():
 # Calculate the factor analysis (plus kneed version), return the loadings matrix df
 def make_loadings_matrix(rating_m):
     '''Takes a rating matrix and returns the loading matrix. Optimized for number of components
-    using the knee, with a oblimin rotation for interpretability'''
+    using the knee, with a oblimin rotation for interpretability
+    '''
     # Fit the initial factor analysis
     fa = FactorAnalyzer(n_factors=10, rotation='oblimin')
     fa.fit(rating_m)
@@ -202,7 +213,9 @@ def make_loadings_matrix(rating_m):
 
 # Make a people matrix(return a df labelled by person)
 def make_targets_matrix(ratings_matrix_name, factor_loadings_matrix):
-    target_scores = pd.DataFrame(np.dot(ratings_matrix_name.T, factor_loadings_matrix))
+    '''Fill in
+    '''
+    target_scores = pd.DataFrame(np.dot(ratings_matrix_name, factor_loadings_matrix))
     target_scores.index = get_people_names()                # Give the correct indices
     target_scores.columns = factor_loadings_matrix.columns  # Label the columns
     return target_scores
@@ -210,7 +223,8 @@ def make_targets_matrix(ratings_matrix_name, factor_loadings_matrix):
 # Define some functions for returning top 3 positive and negative poles and top and bottom exemplars on a dimension
 def get_top_pos_handles(df, col_idx):
     '''For a dataframe, gives the handles for the top three loadings on the positive pole for that column.
-    Important: the dataframe index must be an integer.'''
+    Important: the dataframe index must be an integer.
+    '''
     # Make the top three
     neg_handles = get_neg_handles()
     pos_handles = get_pos_handles()
@@ -226,7 +240,8 @@ def get_top_pos_handles(df, col_idx):
 
 def get_top_neg_handles(df, col_idx):
     '''For a dataframe, gives the handles for the top three loadings on the negative pole for that column.
-    Important: the dataframe index must be an integer.'''
+    Important: the dataframe index must be an integer.
+    '''
     neg_handles = get_neg_handles()
     pos_handles = get_pos_handles()
     # Find the top 3 rows

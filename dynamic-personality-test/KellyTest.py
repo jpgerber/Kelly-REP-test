@@ -12,6 +12,7 @@ import pandas as pd
 from io import StringIO
 import base64
 import matplotlib.pyplot as plt
+import numpy.linalg as linalg
 ###################### Basic initialization of the app ###########################################
 app = Flask(__name__)
 
@@ -688,60 +689,50 @@ def construct15_neg():
 def rating_instructions():
     form = HomeForm()
     if request.method == 'POST':
-        session['rating_counter']=1
-        session['role16']='Yourself'
-        return redirect('ratings/{}'.format(session.get('rating_counter')))
+        return redirect(url_for('ratings1'))
     return render_template('ratings_instructions.html', form=form)
 
-@app.route('/ratings/<rating_counter>', methods=['GET', 'POST'])
-def ratings1(rating_counter):
-    print('The value of the rating counter at the beginning is ' + str(session['rating_counter'])) # checking the counter
-    target = session.get('role{:02d}'.format(session.get('rating_counter'))) # getting the new role
+@app.route('/ratings/1', methods=['GET', 'POST'])
+def ratings1():
+    target = session.get('role01') # getting the new role
     form = RatingForm()
-    #print(form.validate_on_submit())
     if request.method == 'POST':
         # saving form data as session variables
-        session['rating_p{}_const1'.format(rating_counter)] = form.rating_const1.data
-        session['rating_p{}_const2'.format(rating_counter)] = form.rating_const2.data
-        session['rating_p{}_const3'.format(rating_counter)] = form.rating_const3.data
-        session['rating_p{}_const4'.format(rating_counter)] = form.rating_const4.data
-        session['rating_p{}_const5'.format(rating_counter)] = form.rating_const5.data
-        session['rating_p{}_const6'.format(rating_counter)] = form.rating_const6.data
-        session['rating_p{}_const7'.format(rating_counter)] = form.rating_const7.data
-        session['rating_p{}_const8'.format(rating_counter)] = form.rating_const8.data
-        session['rating_p{}_const9'.format(rating_counter)] = form.rating_const9.data
-        session['rating_p{}_const10'.format(rating_counter)] = form.rating_const10.data
-        session['rating_p{}_const11'.format(rating_counter)] = form.rating_const11.data
-        session['rating_p{}_const12'.format(rating_counter)] = form.rating_const12.data
-        session['rating_p{}_const13'.format(rating_counter)] = form.rating_const13.data
-        session['rating_p{}_const14'.format(rating_counter)] = form.rating_const14.data
-        session['rating_p{}_const15'.format(rating_counter)] = form.rating_const15.data
+        session['rating_p1_const1'] = form.rating_const1.data
+        session['rating_p1_const2'] = form.rating_const2.data
+        session['rating_p1_const3'] = form.rating_const3.data
+        session['rating_p1_const4'] = form.rating_const4.data
+        session['rating_p1_const5'] = form.rating_const5.data
+        session['rating_p1_const6'] = form.rating_const6.data
+        session['rating_p1_const7'] = form.rating_const7.data
+        session['rating_p1_const8'] = form.rating_const8.data
+        session['rating_p1_const9'] = form.rating_const9.data
+        session['rating_p1_const10'] = form.rating_const10.data
+        session['rating_p1_const11'] = form.rating_const11.data
+        session['rating_p1_const12'] = form.rating_const12.data
+        session['rating_p1_const13'] = form.rating_const13.data
+        session['rating_p1_const14'] = form.rating_const14.data
+        session['rating_p1_const15'] = form.rating_const15.data
         # updating the database with the new batch of ratings (via a dictionary first)
-        rating_fields = {'rating_p{}_const1'.format(rating_counter): form.rating_const1.data,
-        'rating_p{}_const2'.format(rating_counter): form.rating_const2.data,
-        'rating_p{}_const3'.format(rating_counter): form.rating_const3.data,
-        'rating_p{}_const4'.format(rating_counter): form.rating_const4.data,
-        'rating_p{}_const5'.format(rating_counter): form.rating_const5.data,
-        'rating_p{}_const6'.format(rating_counter): form.rating_const6.data,
-        'rating_p{}_const7'.format(rating_counter): form.rating_const7.data,
-        'rating_p{}_const8'.format(rating_counter): form.rating_const8.data,
-        'rating_p{}_const9'.format(rating_counter): form.rating_const9.data,
-        'rating_p{}_const10'.format(rating_counter): form.rating_const10.data,
-        'rating_p{}_const11'.format(rating_counter): form.rating_const11.data,
-        'rating_p{}_const12'.format(rating_counter): form.rating_const12.data,
-        'rating_p{}_const13'.format(rating_counter): form.rating_const13.data,
-        'rating_p{}_const14'.format(rating_counter): form.rating_const14.data,
-        'rating_p{}_const15'.format(rating_counter): form.rating_const15.data}
+        rating_fields = {'rating_p1_const1': form.rating_const1.data,
+        'rating_p1_const2': form.rating_const2.data,
+        'rating_p1_const3': form.rating_const3.data,
+        'rating_p1_const4': form.rating_const4.data,
+        'rating_p1_const5': form.rating_const5.data,
+        'rating_p1_const6': form.rating_const6.data,
+        'rating_p1_const7': form.rating_const7.data,
+        'rating_p1_const8': form.rating_const8.data,
+        'rating_p1_const9': form.rating_const9.data,
+        'rating_p1_const10': form.rating_const10.data,
+        'rating_p1_const11': form.rating_const11.data,
+        'rating_p1_const12': form.rating_const12.data,
+        'rating_p1_const13': form.rating_const13.data,
+        'rating_p1_const14': form.rating_const14.data,
+        'rating_p1_const15': form.rating_const15.data}
         db_session.query(SurveyData).filter_by(id=session['user_id']).update(rating_fields)
         db_session.commit()
         # Working out whether we have more ratings to do or not...
-        if session.get('rating_counter') < 16:
-            session['rating_counter']=session.get('rating_counter')+1 # Update the counter
-            return redirect('{}'.format(session.get('rating_counter')))
-        else:
-            user_updated = db_session.query(SurveyData).order_by(SurveyData.id.desc()).first()
-            print(user_updated.rating_p15_const15)
-            return redirect(url_for('results'))
+        return redirect(url_for('ratings2'))
     return render_template('ratings.html', form=form, target=target,
         construct1pos_toshow = session.get('construct1pos'),
         construct1neg_toshow = session.get('construct1neg'),
@@ -774,6 +765,1107 @@ def ratings1(rating_counter):
         construct15pos_toshow = session.get('construct15pos'),
         construct15neg_toshow = session.get('construct15neg'),    )
 
+@app.route('/ratings/2', methods=['GET', 'POST'])
+def ratings2():
+    target = session.get('role02') # getting the new role
+    form = RatingForm()
+    if request.method == 'POST':
+        # saving form data as session variables
+        session['rating_p2_const1'] = form.rating_const1.data
+        session['rating_p2_const2'] = form.rating_const2.data
+        session['rating_p2_const3'] = form.rating_const3.data
+        session['rating_p2_const4'] = form.rating_const4.data
+        session['rating_p2_const5'] = form.rating_const5.data
+        session['rating_p2_const6'] = form.rating_const6.data
+        session['rating_p2_const7'] = form.rating_const7.data
+        session['rating_p2_const8'] = form.rating_const8.data
+        session['rating_p2_const9'] = form.rating_const9.data
+        session['rating_p2_const10'] = form.rating_const10.data
+        session['rating_p2_const11'] = form.rating_const11.data
+        session['rating_p2_const12'] = form.rating_const12.data
+        session['rating_p2_const13'] = form.rating_const13.data
+        session['rating_p2_const14'] = form.rating_const14.data
+        session['rating_p2_const15'] = form.rating_const15.data
+        # updating the database with the new batch of ratings (via a dictionary first)
+        rating_fields = {'rating_p2_const1': form.rating_const1.data,
+        'rating_p2_const2': form.rating_const2.data,
+        'rating_p2_const3': form.rating_const3.data,
+        'rating_p2_const4': form.rating_const4.data,
+        'rating_p2_const5': form.rating_const5.data,
+        'rating_p2_const6': form.rating_const6.data,
+        'rating_p2_const7': form.rating_const7.data,
+        'rating_p2_const8': form.rating_const8.data,
+        'rating_p2_const9': form.rating_const9.data,
+        'rating_p2_const10': form.rating_const10.data,
+        'rating_p2_const11': form.rating_const11.data,
+        'rating_p2_const12': form.rating_const12.data,
+        'rating_p2_const13': form.rating_const13.data,
+        'rating_p2_const14': form.rating_const14.data,
+        'rating_p2_const15': form.rating_const15.data}
+        db_session.query(SurveyData).filter_by(id=session['user_id']).update(rating_fields)
+        db_session.commit()
+        # Working out whether we have more ratings to do or not...
+        return redirect(url_for('ratings3'))
+    return render_template('ratings.html', form=form, target=target,
+        construct1pos_toshow = session.get('construct1pos'),
+        construct1neg_toshow = session.get('construct1neg'),
+        construct2pos_toshow = session.get('construct2pos'),
+        construct2neg_toshow = session.get('construct2neg'),
+        construct3pos_toshow = session.get('construct3pos'),
+        construct3neg_toshow = session.get('construct3neg'),
+        construct4pos_toshow = session.get('construct4pos'),
+        construct4neg_toshow = session.get('construct4neg'),
+        construct5pos_toshow = session.get('construct5pos'),
+        construct5neg_toshow = session.get('construct5neg'),
+        construct6pos_toshow = session.get('construct6pos'),
+        construct6neg_toshow = session.get('construct6neg'),
+        construct7pos_toshow = session.get('construct7pos'),
+        construct7neg_toshow = session.get('construct7neg'),
+        construct8pos_toshow = session.get('construct8pos'),
+        construct8neg_toshow = session.get('construct8neg'),
+        construct9pos_toshow = session.get('construct9pos'),
+        construct9neg_toshow = session.get('construct9neg'),
+        construct10pos_toshow = session.get('construct10pos'),
+        construct10neg_toshow = session.get('construct10neg'),
+        construct11pos_toshow = session.get('construct11pos'),
+        construct11neg_toshow = session.get('construct11neg'),
+        construct12pos_toshow = session.get('construct12pos'),
+        construct12neg_toshow = session.get('construct12neg'),
+        construct13pos_toshow = session.get('construct13pos'),
+        construct13neg_toshow = session.get('construct13neg'),
+        construct14pos_toshow = session.get('construct14pos'),
+        construct14neg_toshow = session.get('construct14neg'),
+        construct15pos_toshow = session.get('construct15pos'),
+        construct15neg_toshow = session.get('construct15neg'),    )
+
+@app.route('/ratings/3', methods=['GET', 'POST'])
+def ratings3():
+    target = session.get('role03') # getting the new role
+    form = RatingForm()
+    if request.method == 'POST':
+        # saving form data as session variables
+        session['rating_p3_const1'] = form.rating_const1.data
+        session['rating_p3_const2'] = form.rating_const2.data
+        session['rating_p3_const3'] = form.rating_const3.data
+        session['rating_p3_const4'] = form.rating_const4.data
+        session['rating_p3_const5'] = form.rating_const5.data
+        session['rating_p3_const6'] = form.rating_const6.data
+        session['rating_p3_const7'] = form.rating_const7.data
+        session['rating_p3_const8'] = form.rating_const8.data
+        session['rating_p3_const9'] = form.rating_const9.data
+        session['rating_p3_const10'] = form.rating_const10.data
+        session['rating_p3_const11'] = form.rating_const11.data
+        session['rating_p3_const12'] = form.rating_const12.data
+        session['rating_p3_const13'] = form.rating_const13.data
+        session['rating_p3_const14'] = form.rating_const14.data
+        session['rating_p3_const15'] = form.rating_const15.data
+        # updating the database with the new batch of ratings (via a dictionary first)
+        rating_fields = {'rating_p3_const1': form.rating_const1.data,
+        'rating_p3_const2': form.rating_const2.data,
+        'rating_p3_const3': form.rating_const3.data,
+        'rating_p3_const4': form.rating_const4.data,
+        'rating_p3_const5': form.rating_const5.data,
+        'rating_p3_const6': form.rating_const6.data,
+        'rating_p3_const7': form.rating_const7.data,
+        'rating_p3_const8': form.rating_const8.data,
+        'rating_p3_const9': form.rating_const9.data,
+        'rating_p3_const10': form.rating_const10.data,
+        'rating_p3_const11': form.rating_const11.data,
+        'rating_p3_const12': form.rating_const12.data,
+        'rating_p3_const13': form.rating_const13.data,
+        'rating_p3_const14': form.rating_const14.data,
+        'rating_p3_const15': form.rating_const15.data}
+        db_session.query(SurveyData).filter_by(id=session['user_id']).update(rating_fields)
+        db_session.commit()
+        # Working out whether we have more ratings to do or not...
+        return redirect(url_for('ratings4'))
+    return render_template('ratings.html', form=form, target=target,
+        construct1pos_toshow = session.get('construct1pos'),
+        construct1neg_toshow = session.get('construct1neg'),
+        construct2pos_toshow = session.get('construct2pos'),
+        construct2neg_toshow = session.get('construct2neg'),
+        construct3pos_toshow = session.get('construct3pos'),
+        construct3neg_toshow = session.get('construct3neg'),
+        construct4pos_toshow = session.get('construct4pos'),
+        construct4neg_toshow = session.get('construct4neg'),
+        construct5pos_toshow = session.get('construct5pos'),
+        construct5neg_toshow = session.get('construct5neg'),
+        construct6pos_toshow = session.get('construct6pos'),
+        construct6neg_toshow = session.get('construct6neg'),
+        construct7pos_toshow = session.get('construct7pos'),
+        construct7neg_toshow = session.get('construct7neg'),
+        construct8pos_toshow = session.get('construct8pos'),
+        construct8neg_toshow = session.get('construct8neg'),
+        construct9pos_toshow = session.get('construct9pos'),
+        construct9neg_toshow = session.get('construct9neg'),
+        construct10pos_toshow = session.get('construct10pos'),
+        construct10neg_toshow = session.get('construct10neg'),
+        construct11pos_toshow = session.get('construct11pos'),
+        construct11neg_toshow = session.get('construct11neg'),
+        construct12pos_toshow = session.get('construct12pos'),
+        construct12neg_toshow = session.get('construct12neg'),
+        construct13pos_toshow = session.get('construct13pos'),
+        construct13neg_toshow = session.get('construct13neg'),
+        construct14pos_toshow = session.get('construct14pos'),
+        construct14neg_toshow = session.get('construct14neg'),
+        construct15pos_toshow = session.get('construct15pos'),
+        construct15neg_toshow = session.get('construct15neg'),    )
+
+@app.route('/ratings/4', methods=['GET', 'POST'])
+def ratings4():
+    target = session.get('role04') # getting the new role
+    form = RatingForm()
+    if request.method == 'POST':
+        # saving form data as session variables
+        session['rating_p4_const1'] = form.rating_const1.data
+        session['rating_p4_const2'] = form.rating_const2.data
+        session['rating_p4_const3'] = form.rating_const3.data
+        session['rating_p4_const4'] = form.rating_const4.data
+        session['rating_p4_const5'] = form.rating_const5.data
+        session['rating_p4_const6'] = form.rating_const6.data
+        session['rating_p4_const7'] = form.rating_const7.data
+        session['rating_p4_const8'] = form.rating_const8.data
+        session['rating_p4_const9'] = form.rating_const9.data
+        session['rating_p4_const10'] = form.rating_const10.data
+        session['rating_p4_const11'] = form.rating_const11.data
+        session['rating_p4_const12'] = form.rating_const12.data
+        session['rating_p4_const13'] = form.rating_const13.data
+        session['rating_p4_const14'] = form.rating_const14.data
+        session['rating_p4_const15'] = form.rating_const15.data
+        # updating the database with the new batch of ratings (via a dictionary first)
+        rating_fields = {'rating_p4_const1': form.rating_const1.data,
+        'rating_p4_const2': form.rating_const2.data,
+        'rating_p4_const3': form.rating_const3.data,
+        'rating_p4_const4': form.rating_const4.data,
+        'rating_p4_const5': form.rating_const5.data,
+        'rating_p4_const6': form.rating_const6.data,
+        'rating_p4_const7': form.rating_const7.data,
+        'rating_p4_const8': form.rating_const8.data,
+        'rating_p4_const9': form.rating_const9.data,
+        'rating_p4_const10': form.rating_const10.data,
+        'rating_p4_const11': form.rating_const11.data,
+        'rating_p4_const12': form.rating_const12.data,
+        'rating_p4_const13': form.rating_const13.data,
+        'rating_p4_const14': form.rating_const14.data,
+        'rating_p4_const15': form.rating_const15.data}
+        db_session.query(SurveyData).filter_by(id=session['user_id']).update(rating_fields)
+        db_session.commit()
+        # Working out whether we have more ratings to do or not...
+        return redirect(url_for('ratings5'))
+    return render_template('ratings.html', form=form, target=target,
+        construct1pos_toshow = session.get('construct1pos'),
+        construct1neg_toshow = session.get('construct1neg'),
+        construct2pos_toshow = session.get('construct2pos'),
+        construct2neg_toshow = session.get('construct2neg'),
+        construct3pos_toshow = session.get('construct3pos'),
+        construct3neg_toshow = session.get('construct3neg'),
+        construct4pos_toshow = session.get('construct4pos'),
+        construct4neg_toshow = session.get('construct4neg'),
+        construct5pos_toshow = session.get('construct5pos'),
+        construct5neg_toshow = session.get('construct5neg'),
+        construct6pos_toshow = session.get('construct6pos'),
+        construct6neg_toshow = session.get('construct6neg'),
+        construct7pos_toshow = session.get('construct7pos'),
+        construct7neg_toshow = session.get('construct7neg'),
+        construct8pos_toshow = session.get('construct8pos'),
+        construct8neg_toshow = session.get('construct8neg'),
+        construct9pos_toshow = session.get('construct9pos'),
+        construct9neg_toshow = session.get('construct9neg'),
+        construct10pos_toshow = session.get('construct10pos'),
+        construct10neg_toshow = session.get('construct10neg'),
+        construct11pos_toshow = session.get('construct11pos'),
+        construct11neg_toshow = session.get('construct11neg'),
+        construct12pos_toshow = session.get('construct12pos'),
+        construct12neg_toshow = session.get('construct12neg'),
+        construct13pos_toshow = session.get('construct13pos'),
+        construct13neg_toshow = session.get('construct13neg'),
+        construct14pos_toshow = session.get('construct14pos'),
+        construct14neg_toshow = session.get('construct14neg'),
+        construct15pos_toshow = session.get('construct15pos'),
+        construct15neg_toshow = session.get('construct15neg'),    )
+
+@app.route('/ratings/5', methods=['GET', 'POST'])
+def ratings5():
+    target = session.get('role05') # getting the new role
+    form = RatingForm()
+    if request.method == 'POST':
+        # saving form data as session variables
+        session['rating_p5_const1'] = form.rating_const1.data
+        session['rating_p5_const2'] = form.rating_const2.data
+        session['rating_p5_const3'] = form.rating_const3.data
+        session['rating_p5_const4'] = form.rating_const4.data
+        session['rating_p5_const5'] = form.rating_const5.data
+        session['rating_p5_const6'] = form.rating_const6.data
+        session['rating_p5_const7'] = form.rating_const7.data
+        session['rating_p5_const8'] = form.rating_const8.data
+        session['rating_p5_const9'] = form.rating_const9.data
+        session['rating_p5_const10'] = form.rating_const10.data
+        session['rating_p5_const11'] = form.rating_const11.data
+        session['rating_p5_const12'] = form.rating_const12.data
+        session['rating_p5_const13'] = form.rating_const13.data
+        session['rating_p5_const14'] = form.rating_const14.data
+        session['rating_p5_const15'] = form.rating_const15.data
+        # updating the database with the new batch of ratings (via a dictionary first)
+        rating_fields = {'rating_p5_const1': form.rating_const1.data,
+        'rating_p5_const2': form.rating_const2.data,
+        'rating_p5_const3': form.rating_const3.data,
+        'rating_p5_const4': form.rating_const4.data,
+        'rating_p5_const5': form.rating_const5.data,
+        'rating_p5_const6': form.rating_const6.data,
+        'rating_p5_const7': form.rating_const7.data,
+        'rating_p5_const8': form.rating_const8.data,
+        'rating_p5_const9': form.rating_const9.data,
+        'rating_p5_const10': form.rating_const10.data,
+        'rating_p5_const11': form.rating_const11.data,
+        'rating_p5_const12': form.rating_const12.data,
+        'rating_p5_const13': form.rating_const13.data,
+        'rating_p5_const14': form.rating_const14.data,
+        'rating_p5_const15': form.rating_const15.data}
+        db_session.query(SurveyData).filter_by(id=session['user_id']).update(rating_fields)
+        db_session.commit()
+        # Working out whether we have more ratings to do or not...
+        return redirect(url_for('ratings6'))
+    return render_template('ratings.html', form=form, target=target,
+        construct1pos_toshow = session.get('construct1pos'),
+        construct1neg_toshow = session.get('construct1neg'),
+        construct2pos_toshow = session.get('construct2pos'),
+        construct2neg_toshow = session.get('construct2neg'),
+        construct3pos_toshow = session.get('construct3pos'),
+        construct3neg_toshow = session.get('construct3neg'),
+        construct4pos_toshow = session.get('construct4pos'),
+        construct4neg_toshow = session.get('construct4neg'),
+        construct5pos_toshow = session.get('construct5pos'),
+        construct5neg_toshow = session.get('construct5neg'),
+        construct6pos_toshow = session.get('construct6pos'),
+        construct6neg_toshow = session.get('construct6neg'),
+        construct7pos_toshow = session.get('construct7pos'),
+        construct7neg_toshow = session.get('construct7neg'),
+        construct8pos_toshow = session.get('construct8pos'),
+        construct8neg_toshow = session.get('construct8neg'),
+        construct9pos_toshow = session.get('construct9pos'),
+        construct9neg_toshow = session.get('construct9neg'),
+        construct10pos_toshow = session.get('construct10pos'),
+        construct10neg_toshow = session.get('construct10neg'),
+        construct11pos_toshow = session.get('construct11pos'),
+        construct11neg_toshow = session.get('construct11neg'),
+        construct12pos_toshow = session.get('construct12pos'),
+        construct12neg_toshow = session.get('construct12neg'),
+        construct13pos_toshow = session.get('construct13pos'),
+        construct13neg_toshow = session.get('construct13neg'),
+        construct14pos_toshow = session.get('construct14pos'),
+        construct14neg_toshow = session.get('construct14neg'),
+        construct15pos_toshow = session.get('construct15pos'),
+        construct15neg_toshow = session.get('construct15neg'),    )
+
+@app.route('/ratings/6', methods=['GET', 'POST'])
+def ratings6():
+    target = session.get('role06') # getting the new role
+    form = RatingForm()
+    if request.method == 'POST':
+        # saving form data as session variables
+        session['rating_p6_const1'] = form.rating_const1.data
+        session['rating_p6_const2'] = form.rating_const2.data
+        session['rating_p6_const3'] = form.rating_const3.data
+        session['rating_p6_const4'] = form.rating_const4.data
+        session['rating_p6_const5'] = form.rating_const5.data
+        session['rating_p6_const6'] = form.rating_const6.data
+        session['rating_p6_const7'] = form.rating_const7.data
+        session['rating_p6_const8'] = form.rating_const8.data
+        session['rating_p6_const9'] = form.rating_const9.data
+        session['rating_p6_const10'] = form.rating_const10.data
+        session['rating_p6_const11'] = form.rating_const11.data
+        session['rating_p6_const12'] = form.rating_const12.data
+        session['rating_p6_const13'] = form.rating_const13.data
+        session['rating_p6_const14'] = form.rating_const14.data
+        session['rating_p6_const15'] = form.rating_const15.data
+        # updating the database with the new batch of ratings (via a dictionary first)
+        rating_fields = {'rating_p6_const1': form.rating_const1.data,
+        'rating_p6_const2': form.rating_const2.data,
+        'rating_p6_const3': form.rating_const3.data,
+        'rating_p6_const4': form.rating_const4.data,
+        'rating_p6_const5': form.rating_const5.data,
+        'rating_p6_const6': form.rating_const6.data,
+        'rating_p6_const7': form.rating_const7.data,
+        'rating_p6_const8': form.rating_const8.data,
+        'rating_p6_const9': form.rating_const9.data,
+        'rating_p6_const10': form.rating_const10.data,
+        'rating_p6_const11': form.rating_const11.data,
+        'rating_p6_const12': form.rating_const12.data,
+        'rating_p6_const13': form.rating_const13.data,
+        'rating_p6_const14': form.rating_const14.data,
+        'rating_p6_const15': form.rating_const15.data}
+        db_session.query(SurveyData).filter_by(id=session['user_id']).update(rating_fields)
+        db_session.commit()
+        # Working out whether we have more ratings to do or not...
+        return redirect(url_for('ratings7'))
+    return render_template('ratings.html', form=form, target=target,
+        construct1pos_toshow = session.get('construct1pos'),
+        construct1neg_toshow = session.get('construct1neg'),
+        construct2pos_toshow = session.get('construct2pos'),
+        construct2neg_toshow = session.get('construct2neg'),
+        construct3pos_toshow = session.get('construct3pos'),
+        construct3neg_toshow = session.get('construct3neg'),
+        construct4pos_toshow = session.get('construct4pos'),
+        construct4neg_toshow = session.get('construct4neg'),
+        construct5pos_toshow = session.get('construct5pos'),
+        construct5neg_toshow = session.get('construct5neg'),
+        construct6pos_toshow = session.get('construct6pos'),
+        construct6neg_toshow = session.get('construct6neg'),
+        construct7pos_toshow = session.get('construct7pos'),
+        construct7neg_toshow = session.get('construct7neg'),
+        construct8pos_toshow = session.get('construct8pos'),
+        construct8neg_toshow = session.get('construct8neg'),
+        construct9pos_toshow = session.get('construct9pos'),
+        construct9neg_toshow = session.get('construct9neg'),
+        construct10pos_toshow = session.get('construct10pos'),
+        construct10neg_toshow = session.get('construct10neg'),
+        construct11pos_toshow = session.get('construct11pos'),
+        construct11neg_toshow = session.get('construct11neg'),
+        construct12pos_toshow = session.get('construct12pos'),
+        construct12neg_toshow = session.get('construct12neg'),
+        construct13pos_toshow = session.get('construct13pos'),
+        construct13neg_toshow = session.get('construct13neg'),
+        construct14pos_toshow = session.get('construct14pos'),
+        construct14neg_toshow = session.get('construct14neg'),
+        construct15pos_toshow = session.get('construct15pos'),
+        construct15neg_toshow = session.get('construct15neg'),    )
+
+@app.route('/ratings/7', methods=['GET', 'POST'])
+def ratings7():
+    target = session.get('role07') # getting the new role
+    form = RatingForm()
+    if request.method == 'POST':
+        # saving form data as session variables
+        session['rating_p7_const1'] = form.rating_const1.data
+        session['rating_p7_const2'] = form.rating_const2.data
+        session['rating_p7_const3'] = form.rating_const3.data
+        session['rating_p7_const4'] = form.rating_const4.data
+        session['rating_p7_const5'] = form.rating_const5.data
+        session['rating_p7_const6'] = form.rating_const6.data
+        session['rating_p7_const7'] = form.rating_const7.data
+        session['rating_p7_const8'] = form.rating_const8.data
+        session['rating_p7_const9'] = form.rating_const9.data
+        session['rating_p7_const10'] = form.rating_const10.data
+        session['rating_p7_const11'] = form.rating_const11.data
+        session['rating_p7_const12'] = form.rating_const12.data
+        session['rating_p7_const13'] = form.rating_const13.data
+        session['rating_p7_const14'] = form.rating_const14.data
+        session['rating_p7_const15'] = form.rating_const15.data
+        # updating the database with the new batch of ratings (via a dictionary first)
+        rating_fields = {'rating_p7_const1': form.rating_const1.data,
+        'rating_p7_const2': form.rating_const2.data,
+        'rating_p7_const3': form.rating_const3.data,
+        'rating_p7_const4': form.rating_const4.data,
+        'rating_p7_const5': form.rating_const5.data,
+        'rating_p7_const6': form.rating_const6.data,
+        'rating_p7_const7': form.rating_const7.data,
+        'rating_p7_const8': form.rating_const8.data,
+        'rating_p7_const9': form.rating_const9.data,
+        'rating_p7_const10': form.rating_const10.data,
+        'rating_p7_const11': form.rating_const11.data,
+        'rating_p7_const12': form.rating_const12.data,
+        'rating_p7_const13': form.rating_const13.data,
+        'rating_p7_const14': form.rating_const14.data,
+        'rating_p7_const15': form.rating_const15.data}
+        db_session.query(SurveyData).filter_by(id=session['user_id']).update(rating_fields)
+        db_session.commit()
+        # Working out whether we have more ratings to do or not...
+        return redirect(url_for('ratings8'))
+    return render_template('ratings.html', form=form, target=target,
+        construct1pos_toshow = session.get('construct1pos'),
+        construct1neg_toshow = session.get('construct1neg'),
+        construct2pos_toshow = session.get('construct2pos'),
+        construct2neg_toshow = session.get('construct2neg'),
+        construct3pos_toshow = session.get('construct3pos'),
+        construct3neg_toshow = session.get('construct3neg'),
+        construct4pos_toshow = session.get('construct4pos'),
+        construct4neg_toshow = session.get('construct4neg'),
+        construct5pos_toshow = session.get('construct5pos'),
+        construct5neg_toshow = session.get('construct5neg'),
+        construct6pos_toshow = session.get('construct6pos'),
+        construct6neg_toshow = session.get('construct6neg'),
+        construct7pos_toshow = session.get('construct7pos'),
+        construct7neg_toshow = session.get('construct7neg'),
+        construct8pos_toshow = session.get('construct8pos'),
+        construct8neg_toshow = session.get('construct8neg'),
+        construct9pos_toshow = session.get('construct9pos'),
+        construct9neg_toshow = session.get('construct9neg'),
+        construct10pos_toshow = session.get('construct10pos'),
+        construct10neg_toshow = session.get('construct10neg'),
+        construct11pos_toshow = session.get('construct11pos'),
+        construct11neg_toshow = session.get('construct11neg'),
+        construct12pos_toshow = session.get('construct12pos'),
+        construct12neg_toshow = session.get('construct12neg'),
+        construct13pos_toshow = session.get('construct13pos'),
+        construct13neg_toshow = session.get('construct13neg'),
+        construct14pos_toshow = session.get('construct14pos'),
+        construct14neg_toshow = session.get('construct14neg'),
+        construct15pos_toshow = session.get('construct15pos'),
+        construct15neg_toshow = session.get('construct15neg'),    )
+
+@app.route('/ratings/8', methods=['GET', 'POST'])
+def ratings8():
+    target = session.get('role08') # getting the new role
+    form = RatingForm()
+    if request.method == 'POST':
+        # saving form data as session variables
+        session['rating_p8_const1'] = form.rating_const1.data
+        session['rating_p8_const2'] = form.rating_const2.data
+        session['rating_p8_const3'] = form.rating_const3.data
+        session['rating_p8_const4'] = form.rating_const4.data
+        session['rating_p8_const5'] = form.rating_const5.data
+        session['rating_p8_const6'] = form.rating_const6.data
+        session['rating_p8_const7'] = form.rating_const7.data
+        session['rating_p8_const8'] = form.rating_const8.data
+        session['rating_p8_const9'] = form.rating_const9.data
+        session['rating_p8_const10'] = form.rating_const10.data
+        session['rating_p8_const11'] = form.rating_const11.data
+        session['rating_p8_const12'] = form.rating_const12.data
+        session['rating_p8_const13'] = form.rating_const13.data
+        session['rating_p8_const14'] = form.rating_const14.data
+        session['rating_p8_const15'] = form.rating_const15.data
+        # updating the database with the new batch of ratings (via a dictionary first)
+        rating_fields = {'rating_p8_const1': form.rating_const1.data,
+        'rating_p8_const2': form.rating_const2.data,
+        'rating_p8_const3': form.rating_const3.data,
+        'rating_p8_const4': form.rating_const4.data,
+        'rating_p8_const5': form.rating_const5.data,
+        'rating_p8_const6': form.rating_const6.data,
+        'rating_p8_const7': form.rating_const7.data,
+        'rating_p8_const8': form.rating_const8.data,
+        'rating_p8_const9': form.rating_const9.data,
+        'rating_p8_const10': form.rating_const10.data,
+        'rating_p8_const11': form.rating_const11.data,
+        'rating_p8_const12': form.rating_const12.data,
+        'rating_p8_const13': form.rating_const13.data,
+        'rating_p8_const14': form.rating_const14.data,
+        'rating_p8_const15': form.rating_const15.data}
+        db_session.query(SurveyData).filter_by(id=session['user_id']).update(rating_fields)
+        db_session.commit()
+        # Working out whether we have more ratings to do or not...
+        return redirect(url_for('ratings9'))
+    return render_template('ratings.html', form=form, target=target,
+        construct1pos_toshow = session.get('construct1pos'),
+        construct1neg_toshow = session.get('construct1neg'),
+        construct2pos_toshow = session.get('construct2pos'),
+        construct2neg_toshow = session.get('construct2neg'),
+        construct3pos_toshow = session.get('construct3pos'),
+        construct3neg_toshow = session.get('construct3neg'),
+        construct4pos_toshow = session.get('construct4pos'),
+        construct4neg_toshow = session.get('construct4neg'),
+        construct5pos_toshow = session.get('construct5pos'),
+        construct5neg_toshow = session.get('construct5neg'),
+        construct6pos_toshow = session.get('construct6pos'),
+        construct6neg_toshow = session.get('construct6neg'),
+        construct7pos_toshow = session.get('construct7pos'),
+        construct7neg_toshow = session.get('construct7neg'),
+        construct8pos_toshow = session.get('construct8pos'),
+        construct8neg_toshow = session.get('construct8neg'),
+        construct9pos_toshow = session.get('construct9pos'),
+        construct9neg_toshow = session.get('construct9neg'),
+        construct10pos_toshow = session.get('construct10pos'),
+        construct10neg_toshow = session.get('construct10neg'),
+        construct11pos_toshow = session.get('construct11pos'),
+        construct11neg_toshow = session.get('construct11neg'),
+        construct12pos_toshow = session.get('construct12pos'),
+        construct12neg_toshow = session.get('construct12neg'),
+        construct13pos_toshow = session.get('construct13pos'),
+        construct13neg_toshow = session.get('construct13neg'),
+        construct14pos_toshow = session.get('construct14pos'),
+        construct14neg_toshow = session.get('construct14neg'),
+        construct15pos_toshow = session.get('construct15pos'),
+        construct15neg_toshow = session.get('construct15neg'),    )
+
+@app.route('/ratings/9', methods=['GET', 'POST'])
+def ratings9():
+    target = session.get('role09') # getting the new role
+    form = RatingForm()
+    if request.method == 'POST':
+        # saving form data as session variables
+        session['rating_p9_const1'] = form.rating_const1.data
+        session['rating_p9_const2'] = form.rating_const2.data
+        session['rating_p9_const3'] = form.rating_const3.data
+        session['rating_p9_const4'] = form.rating_const4.data
+        session['rating_p9_const5'] = form.rating_const5.data
+        session['rating_p9_const6'] = form.rating_const6.data
+        session['rating_p9_const7'] = form.rating_const7.data
+        session['rating_p9_const8'] = form.rating_const8.data
+        session['rating_p9_const9'] = form.rating_const9.data
+        session['rating_p9_const10'] = form.rating_const10.data
+        session['rating_p9_const11'] = form.rating_const11.data
+        session['rating_p9_const12'] = form.rating_const12.data
+        session['rating_p9_const13'] = form.rating_const13.data
+        session['rating_p9_const14'] = form.rating_const14.data
+        session['rating_p9_const15'] = form.rating_const15.data
+        # updating the database with the new batch of ratings (via a dictionary first)
+        rating_fields = {'rating_p9_const1': form.rating_const1.data,
+        'rating_p9_const2': form.rating_const2.data,
+        'rating_p9_const3': form.rating_const3.data,
+        'rating_p9_const4': form.rating_const4.data,
+        'rating_p9_const5': form.rating_const5.data,
+        'rating_p9_const6': form.rating_const6.data,
+        'rating_p9_const7': form.rating_const7.data,
+        'rating_p9_const8': form.rating_const8.data,
+        'rating_p9_const9': form.rating_const9.data,
+        'rating_p9_const10': form.rating_const10.data,
+        'rating_p9_const11': form.rating_const11.data,
+        'rating_p9_const12': form.rating_const12.data,
+        'rating_p9_const13': form.rating_const13.data,
+        'rating_p9_const14': form.rating_const14.data,
+        'rating_p9_const15': form.rating_const15.data}
+        db_session.query(SurveyData).filter_by(id=session['user_id']).update(rating_fields)
+        db_session.commit()
+        # Working out whether we have more ratings to do or not...
+        return redirect(url_for('ratings10'))
+    return render_template('ratings.html', form=form, target=target,
+        construct1pos_toshow = session.get('construct1pos'),
+        construct1neg_toshow = session.get('construct1neg'),
+        construct2pos_toshow = session.get('construct2pos'),
+        construct2neg_toshow = session.get('construct2neg'),
+        construct3pos_toshow = session.get('construct3pos'),
+        construct3neg_toshow = session.get('construct3neg'),
+        construct4pos_toshow = session.get('construct4pos'),
+        construct4neg_toshow = session.get('construct4neg'),
+        construct5pos_toshow = session.get('construct5pos'),
+        construct5neg_toshow = session.get('construct5neg'),
+        construct6pos_toshow = session.get('construct6pos'),
+        construct6neg_toshow = session.get('construct6neg'),
+        construct7pos_toshow = session.get('construct7pos'),
+        construct7neg_toshow = session.get('construct7neg'),
+        construct8pos_toshow = session.get('construct8pos'),
+        construct8neg_toshow = session.get('construct8neg'),
+        construct9pos_toshow = session.get('construct9pos'),
+        construct9neg_toshow = session.get('construct9neg'),
+        construct10pos_toshow = session.get('construct10pos'),
+        construct10neg_toshow = session.get('construct10neg'),
+        construct11pos_toshow = session.get('construct11pos'),
+        construct11neg_toshow = session.get('construct11neg'),
+        construct12pos_toshow = session.get('construct12pos'),
+        construct12neg_toshow = session.get('construct12neg'),
+        construct13pos_toshow = session.get('construct13pos'),
+        construct13neg_toshow = session.get('construct13neg'),
+        construct14pos_toshow = session.get('construct14pos'),
+        construct14neg_toshow = session.get('construct14neg'),
+        construct15pos_toshow = session.get('construct15pos'),
+        construct15neg_toshow = session.get('construct15neg'),    )
+
+@app.route('/ratings/10', methods=['GET', 'POST'])
+def ratings10():
+    target = session.get('role10') # getting the new role
+    form = RatingForm()
+    if request.method == 'POST':
+        # saving form data as session variables
+        session['rating_p10_const1'] = form.rating_const1.data
+        session['rating_p10_const2'] = form.rating_const2.data
+        session['rating_p10_const3'] = form.rating_const3.data
+        session['rating_p10_const4'] = form.rating_const4.data
+        session['rating_p10_const5'] = form.rating_const5.data
+        session['rating_p10_const6'] = form.rating_const6.data
+        session['rating_p10_const7'] = form.rating_const7.data
+        session['rating_p10_const8'] = form.rating_const8.data
+        session['rating_p10_const9'] = form.rating_const9.data
+        session['rating_p10_const10'] = form.rating_const10.data
+        session['rating_p10_const11'] = form.rating_const11.data
+        session['rating_p10_const12'] = form.rating_const12.data
+        session['rating_p10_const13'] = form.rating_const13.data
+        session['rating_p10_const14'] = form.rating_const14.data
+        session['rating_p10_const15'] = form.rating_const15.data
+        # updating the database with the new batch of ratings (via a dictionary first)
+        rating_fields = {'rating_p10_const1': form.rating_const1.data,
+        'rating_p10_const2': form.rating_const2.data,
+        'rating_p10_const3': form.rating_const3.data,
+        'rating_p10_const4': form.rating_const4.data,
+        'rating_p10_const5': form.rating_const5.data,
+        'rating_p10_const6': form.rating_const6.data,
+        'rating_p10_const7': form.rating_const7.data,
+        'rating_p10_const8': form.rating_const8.data,
+        'rating_p10_const9': form.rating_const9.data,
+        'rating_p10_const10': form.rating_const10.data,
+        'rating_p10_const11': form.rating_const11.data,
+        'rating_p10_const12': form.rating_const12.data,
+        'rating_p10_const13': form.rating_const13.data,
+        'rating_p10_const14': form.rating_const14.data,
+        'rating_p10_const15': form.rating_const15.data}
+        db_session.query(SurveyData).filter_by(id=session['user_id']).update(rating_fields)
+        db_session.commit()
+        # Working out whether we have more ratings to do or not...
+        return redirect(url_for('ratings11'))
+    return render_template('ratings.html', form=form, target=target,
+        construct1pos_toshow = session.get('construct1pos'),
+        construct1neg_toshow = session.get('construct1neg'),
+        construct2pos_toshow = session.get('construct2pos'),
+        construct2neg_toshow = session.get('construct2neg'),
+        construct3pos_toshow = session.get('construct3pos'),
+        construct3neg_toshow = session.get('construct3neg'),
+        construct4pos_toshow = session.get('construct4pos'),
+        construct4neg_toshow = session.get('construct4neg'),
+        construct5pos_toshow = session.get('construct5pos'),
+        construct5neg_toshow = session.get('construct5neg'),
+        construct6pos_toshow = session.get('construct6pos'),
+        construct6neg_toshow = session.get('construct6neg'),
+        construct7pos_toshow = session.get('construct7pos'),
+        construct7neg_toshow = session.get('construct7neg'),
+        construct8pos_toshow = session.get('construct8pos'),
+        construct8neg_toshow = session.get('construct8neg'),
+        construct9pos_toshow = session.get('construct9pos'),
+        construct9neg_toshow = session.get('construct9neg'),
+        construct10pos_toshow = session.get('construct10pos'),
+        construct10neg_toshow = session.get('construct10neg'),
+        construct11pos_toshow = session.get('construct11pos'),
+        construct11neg_toshow = session.get('construct11neg'),
+        construct12pos_toshow = session.get('construct12pos'),
+        construct12neg_toshow = session.get('construct12neg'),
+        construct13pos_toshow = session.get('construct13pos'),
+        construct13neg_toshow = session.get('construct13neg'),
+        construct14pos_toshow = session.get('construct14pos'),
+        construct14neg_toshow = session.get('construct14neg'),
+        construct15pos_toshow = session.get('construct15pos'),
+        construct15neg_toshow = session.get('construct15neg'),    )
+
+@app.route('/ratings/11', methods=['GET', 'POST'])
+def ratings11():
+    target = session.get('role11') # getting the new role
+    form = RatingForm()
+    if request.method == 'POST':
+        # saving form data as session variables
+        session['rating_p11_const1'] = form.rating_const1.data
+        session['rating_p11_const2'] = form.rating_const2.data
+        session['rating_p11_const3'] = form.rating_const3.data
+        session['rating_p11_const4'] = form.rating_const4.data
+        session['rating_p11_const5'] = form.rating_const5.data
+        session['rating_p11_const6'] = form.rating_const6.data
+        session['rating_p11_const7'] = form.rating_const7.data
+        session['rating_p11_const8'] = form.rating_const8.data
+        session['rating_p11_const9'] = form.rating_const9.data
+        session['rating_p11_const10'] = form.rating_const10.data
+        session['rating_p11_const11'] = form.rating_const11.data
+        session['rating_p11_const12'] = form.rating_const12.data
+        session['rating_p11_const13'] = form.rating_const13.data
+        session['rating_p11_const14'] = form.rating_const14.data
+        session['rating_p11_const15'] = form.rating_const15.data
+        # updating the database with the new batch of ratings (via a dictionary first)
+        rating_fields = {'rating_p11_const1': form.rating_const1.data,
+        'rating_p11_const2': form.rating_const2.data,
+        'rating_p11_const3': form.rating_const3.data,
+        'rating_p11_const4': form.rating_const4.data,
+        'rating_p11_const5': form.rating_const5.data,
+        'rating_p11_const6': form.rating_const6.data,
+        'rating_p11_const7': form.rating_const7.data,
+        'rating_p11_const8': form.rating_const8.data,
+        'rating_p11_const9': form.rating_const9.data,
+        'rating_p11_const10': form.rating_const10.data,
+        'rating_p11_const11': form.rating_const11.data,
+        'rating_p11_const12': form.rating_const12.data,
+        'rating_p11_const13': form.rating_const13.data,
+        'rating_p11_const14': form.rating_const14.data,
+        'rating_p11_const15': form.rating_const15.data}
+        db_session.query(SurveyData).filter_by(id=session['user_id']).update(rating_fields)
+        db_session.commit()
+        # Working out whether we have more ratings to do or not...
+        return redirect(url_for('ratings12'))
+    return render_template('ratings.html', form=form, target=target,
+        construct1pos_toshow = session.get('construct1pos'),
+        construct1neg_toshow = session.get('construct1neg'),
+        construct2pos_toshow = session.get('construct2pos'),
+        construct2neg_toshow = session.get('construct2neg'),
+        construct3pos_toshow = session.get('construct3pos'),
+        construct3neg_toshow = session.get('construct3neg'),
+        construct4pos_toshow = session.get('construct4pos'),
+        construct4neg_toshow = session.get('construct4neg'),
+        construct5pos_toshow = session.get('construct5pos'),
+        construct5neg_toshow = session.get('construct5neg'),
+        construct6pos_toshow = session.get('construct6pos'),
+        construct6neg_toshow = session.get('construct6neg'),
+        construct7pos_toshow = session.get('construct7pos'),
+        construct7neg_toshow = session.get('construct7neg'),
+        construct8pos_toshow = session.get('construct8pos'),
+        construct8neg_toshow = session.get('construct8neg'),
+        construct9pos_toshow = session.get('construct9pos'),
+        construct9neg_toshow = session.get('construct9neg'),
+        construct10pos_toshow = session.get('construct10pos'),
+        construct10neg_toshow = session.get('construct10neg'),
+        construct11pos_toshow = session.get('construct11pos'),
+        construct11neg_toshow = session.get('construct11neg'),
+        construct12pos_toshow = session.get('construct12pos'),
+        construct12neg_toshow = session.get('construct12neg'),
+        construct13pos_toshow = session.get('construct13pos'),
+        construct13neg_toshow = session.get('construct13neg'),
+        construct14pos_toshow = session.get('construct14pos'),
+        construct14neg_toshow = session.get('construct14neg'),
+        construct15pos_toshow = session.get('construct15pos'),
+        construct15neg_toshow = session.get('construct15neg'),    )
+
+@app.route('/ratings/12', methods=['GET', 'POST'])
+def ratings12():
+    target = session.get('role12') # getting the new role
+    form = RatingForm()
+    if request.method == 'POST':
+        # saving form data as session variables
+        session['rating_p12_const1'] = form.rating_const1.data
+        session['rating_p12_const2'] = form.rating_const2.data
+        session['rating_p12_const3'] = form.rating_const3.data
+        session['rating_p12_const4'] = form.rating_const4.data
+        session['rating_p12_const5'] = form.rating_const5.data
+        session['rating_p12_const6'] = form.rating_const6.data
+        session['rating_p12_const7'] = form.rating_const7.data
+        session['rating_p12_const8'] = form.rating_const8.data
+        session['rating_p12_const9'] = form.rating_const9.data
+        session['rating_p12_const10'] = form.rating_const10.data
+        session['rating_p12_const11'] = form.rating_const11.data
+        session['rating_p12_const12'] = form.rating_const12.data
+        session['rating_p12_const13'] = form.rating_const13.data
+        session['rating_p12_const14'] = form.rating_const14.data
+        session['rating_p12_const15'] = form.rating_const15.data
+        # updating the database with the new batch of ratings (via a dictionary first)
+        rating_fields = {'rating_p12_const1': form.rating_const1.data,
+        'rating_p12_const2': form.rating_const2.data,
+        'rating_p12_const3': form.rating_const3.data,
+        'rating_p12_const4': form.rating_const4.data,
+        'rating_p12_const5': form.rating_const5.data,
+        'rating_p12_const6': form.rating_const6.data,
+        'rating_p12_const7': form.rating_const7.data,
+        'rating_p12_const8': form.rating_const8.data,
+        'rating_p12_const9': form.rating_const9.data,
+        'rating_p12_const10': form.rating_const10.data,
+        'rating_p12_const11': form.rating_const11.data,
+        'rating_p12_const12': form.rating_const12.data,
+        'rating_p12_const13': form.rating_const13.data,
+        'rating_p12_const14': form.rating_const14.data,
+        'rating_p12_const15': form.rating_const15.data}
+        db_session.query(SurveyData).filter_by(id=session['user_id']).update(rating_fields)
+        db_session.commit()
+        # Working out whether we have more ratings to do or not...
+        return redirect(url_for('ratings13'))
+    return render_template('ratings.html', form=form, target=target,
+        construct1pos_toshow = session.get('construct1pos'),
+        construct1neg_toshow = session.get('construct1neg'),
+        construct2pos_toshow = session.get('construct2pos'),
+        construct2neg_toshow = session.get('construct2neg'),
+        construct3pos_toshow = session.get('construct3pos'),
+        construct3neg_toshow = session.get('construct3neg'),
+        construct4pos_toshow = session.get('construct4pos'),
+        construct4neg_toshow = session.get('construct4neg'),
+        construct5pos_toshow = session.get('construct5pos'),
+        construct5neg_toshow = session.get('construct5neg'),
+        construct6pos_toshow = session.get('construct6pos'),
+        construct6neg_toshow = session.get('construct6neg'),
+        construct7pos_toshow = session.get('construct7pos'),
+        construct7neg_toshow = session.get('construct7neg'),
+        construct8pos_toshow = session.get('construct8pos'),
+        construct8neg_toshow = session.get('construct8neg'),
+        construct9pos_toshow = session.get('construct9pos'),
+        construct9neg_toshow = session.get('construct9neg'),
+        construct10pos_toshow = session.get('construct10pos'),
+        construct10neg_toshow = session.get('construct10neg'),
+        construct11pos_toshow = session.get('construct11pos'),
+        construct11neg_toshow = session.get('construct11neg'),
+        construct12pos_toshow = session.get('construct12pos'),
+        construct12neg_toshow = session.get('construct12neg'),
+        construct13pos_toshow = session.get('construct13pos'),
+        construct13neg_toshow = session.get('construct13neg'),
+        construct14pos_toshow = session.get('construct14pos'),
+        construct14neg_toshow = session.get('construct14neg'),
+        construct15pos_toshow = session.get('construct15pos'),
+        construct15neg_toshow = session.get('construct15neg'),    )
+
+@app.route('/ratings/13', methods=['GET', 'POST'])
+def ratings13():
+    target = session.get('role13') # getting the new role
+    form = RatingForm()
+    if request.method == 'POST':
+        # saving form data as session variables
+        session['rating_p13_const1'] = form.rating_const1.data
+        session['rating_p13_const2'] = form.rating_const2.data
+        session['rating_p13_const3'] = form.rating_const3.data
+        session['rating_p13_const4'] = form.rating_const4.data
+        session['rating_p13_const5'] = form.rating_const5.data
+        session['rating_p13_const6'] = form.rating_const6.data
+        session['rating_p13_const7'] = form.rating_const7.data
+        session['rating_p13_const8'] = form.rating_const8.data
+        session['rating_p13_const9'] = form.rating_const9.data
+        session['rating_p13_const10'] = form.rating_const10.data
+        session['rating_p13_const11'] = form.rating_const11.data
+        session['rating_p13_const12'] = form.rating_const12.data
+        session['rating_p13_const13'] = form.rating_const13.data
+        session['rating_p13_const14'] = form.rating_const14.data
+        session['rating_p13_const15'] = form.rating_const15.data
+        # updating the database with the new batch of ratings (via a dictionary first)
+        rating_fields = {'rating_p13_const1': form.rating_const1.data,
+        'rating_p13_const2': form.rating_const2.data,
+        'rating_p13_const3': form.rating_const3.data,
+        'rating_p13_const4': form.rating_const4.data,
+        'rating_p13_const5': form.rating_const5.data,
+        'rating_p13_const6': form.rating_const6.data,
+        'rating_p13_const7': form.rating_const7.data,
+        'rating_p13_const8': form.rating_const8.data,
+        'rating_p13_const9': form.rating_const9.data,
+        'rating_p13_const10': form.rating_const10.data,
+        'rating_p13_const11': form.rating_const11.data,
+        'rating_p13_const12': form.rating_const12.data,
+        'rating_p13_const13': form.rating_const13.data,
+        'rating_p13_const14': form.rating_const14.data,
+        'rating_p13_const15': form.rating_const15.data}
+        db_session.query(SurveyData).filter_by(id=session['user_id']).update(rating_fields)
+        db_session.commit()
+        # Working out whether we have more ratings to do or not...
+        return redirect(url_for('ratings14'))
+    return render_template('ratings.html', form=form, target=target,
+        construct1pos_toshow = session.get('construct1pos'),
+        construct1neg_toshow = session.get('construct1neg'),
+        construct2pos_toshow = session.get('construct2pos'),
+        construct2neg_toshow = session.get('construct2neg'),
+        construct3pos_toshow = session.get('construct3pos'),
+        construct3neg_toshow = session.get('construct3neg'),
+        construct4pos_toshow = session.get('construct4pos'),
+        construct4neg_toshow = session.get('construct4neg'),
+        construct5pos_toshow = session.get('construct5pos'),
+        construct5neg_toshow = session.get('construct5neg'),
+        construct6pos_toshow = session.get('construct6pos'),
+        construct6neg_toshow = session.get('construct6neg'),
+        construct7pos_toshow = session.get('construct7pos'),
+        construct7neg_toshow = session.get('construct7neg'),
+        construct8pos_toshow = session.get('construct8pos'),
+        construct8neg_toshow = session.get('construct8neg'),
+        construct9pos_toshow = session.get('construct9pos'),
+        construct9neg_toshow = session.get('construct9neg'),
+        construct10pos_toshow = session.get('construct10pos'),
+        construct10neg_toshow = session.get('construct10neg'),
+        construct11pos_toshow = session.get('construct11pos'),
+        construct11neg_toshow = session.get('construct11neg'),
+        construct12pos_toshow = session.get('construct12pos'),
+        construct12neg_toshow = session.get('construct12neg'),
+        construct13pos_toshow = session.get('construct13pos'),
+        construct13neg_toshow = session.get('construct13neg'),
+        construct14pos_toshow = session.get('construct14pos'),
+        construct14neg_toshow = session.get('construct14neg'),
+        construct15pos_toshow = session.get('construct15pos'),
+        construct15neg_toshow = session.get('construct15neg'),    )
+
+@app.route('/ratings/14', methods=['GET', 'POST'])
+def ratings14():
+    target = session.get('role14') # getting the new role
+    form = RatingForm()
+    if request.method == 'POST':
+        # saving form data as session variables
+        session['rating_p14_const1'] = form.rating_const1.data
+        session['rating_p14_const2'] = form.rating_const2.data
+        session['rating_p14_const3'] = form.rating_const3.data
+        session['rating_p14_const4'] = form.rating_const4.data
+        session['rating_p14_const5'] = form.rating_const5.data
+        session['rating_p14_const6'] = form.rating_const6.data
+        session['rating_p14_const7'] = form.rating_const7.data
+        session['rating_p14_const8'] = form.rating_const8.data
+        session['rating_p14_const9'] = form.rating_const9.data
+        session['rating_p14_const10'] = form.rating_const10.data
+        session['rating_p14_const11'] = form.rating_const11.data
+        session['rating_p14_const12'] = form.rating_const12.data
+        session['rating_p14_const13'] = form.rating_const13.data
+        session['rating_p14_const14'] = form.rating_const14.data
+        session['rating_p14_const15'] = form.rating_const15.data
+        # updating the database with the new batch of ratings (via a dictionary first)
+        rating_fields = {'rating_p14_const1': form.rating_const1.data,
+        'rating_p14_const2': form.rating_const2.data,
+        'rating_p14_const3': form.rating_const3.data,
+        'rating_p14_const4': form.rating_const4.data,
+        'rating_p14_const5': form.rating_const5.data,
+        'rating_p14_const6': form.rating_const6.data,
+        'rating_p14_const7': form.rating_const7.data,
+        'rating_p14_const8': form.rating_const8.data,
+        'rating_p14_const9': form.rating_const9.data,
+        'rating_p14_const10': form.rating_const10.data,
+        'rating_p14_const11': form.rating_const11.data,
+        'rating_p14_const12': form.rating_const12.data,
+        'rating_p14_const13': form.rating_const13.data,
+        'rating_p14_const14': form.rating_const14.data,
+        'rating_p14_const15': form.rating_const15.data}
+        db_session.query(SurveyData).filter_by(id=session['user_id']).update(rating_fields)
+        db_session.commit()
+        # Working out whether we have more ratings to do or not...
+        return redirect(url_for('ratings15'))
+    return render_template('ratings.html', form=form, target=target,
+        construct1pos_toshow = session.get('construct1pos'),
+        construct1neg_toshow = session.get('construct1neg'),
+        construct2pos_toshow = session.get('construct2pos'),
+        construct2neg_toshow = session.get('construct2neg'),
+        construct3pos_toshow = session.get('construct3pos'),
+        construct3neg_toshow = session.get('construct3neg'),
+        construct4pos_toshow = session.get('construct4pos'),
+        construct4neg_toshow = session.get('construct4neg'),
+        construct5pos_toshow = session.get('construct5pos'),
+        construct5neg_toshow = session.get('construct5neg'),
+        construct6pos_toshow = session.get('construct6pos'),
+        construct6neg_toshow = session.get('construct6neg'),
+        construct7pos_toshow = session.get('construct7pos'),
+        construct7neg_toshow = session.get('construct7neg'),
+        construct8pos_toshow = session.get('construct8pos'),
+        construct8neg_toshow = session.get('construct8neg'),
+        construct9pos_toshow = session.get('construct9pos'),
+        construct9neg_toshow = session.get('construct9neg'),
+        construct10pos_toshow = session.get('construct10pos'),
+        construct10neg_toshow = session.get('construct10neg'),
+        construct11pos_toshow = session.get('construct11pos'),
+        construct11neg_toshow = session.get('construct11neg'),
+        construct12pos_toshow = session.get('construct12pos'),
+        construct12neg_toshow = session.get('construct12neg'),
+        construct13pos_toshow = session.get('construct13pos'),
+        construct13neg_toshow = session.get('construct13neg'),
+        construct14pos_toshow = session.get('construct14pos'),
+        construct14neg_toshow = session.get('construct14neg'),
+        construct15pos_toshow = session.get('construct15pos'),
+        construct15neg_toshow = session.get('construct15neg'),    )
+
+@app.route('/ratings/15', methods=['GET', 'POST'])
+def ratings15():
+    target = session.get('role15') # getting the new role
+    form = RatingForm()
+    if request.method == 'POST':
+        # saving form data as session variables
+        session['rating_p15_const1'] = form.rating_const1.data
+        session['rating_p15_const2'] = form.rating_const2.data
+        session['rating_p15_const3'] = form.rating_const3.data
+        session['rating_p15_const4'] = form.rating_const4.data
+        session['rating_p15_const5'] = form.rating_const5.data
+        session['rating_p15_const6'] = form.rating_const6.data
+        session['rating_p15_const7'] = form.rating_const7.data
+        session['rating_p15_const8'] = form.rating_const8.data
+        session['rating_p15_const9'] = form.rating_const9.data
+        session['rating_p15_const10'] = form.rating_const10.data
+        session['rating_p15_const11'] = form.rating_const11.data
+        session['rating_p15_const12'] = form.rating_const12.data
+        session['rating_p15_const13'] = form.rating_const13.data
+        session['rating_p15_const14'] = form.rating_const14.data
+        session['rating_p15_const15'] = form.rating_const15.data
+        # updating the database with the new batch of ratings (via a dictionary first)
+        rating_fields = {'rating_p15_const1': form.rating_const1.data,
+        'rating_p15_const2': form.rating_const2.data,
+        'rating_p15_const3': form.rating_const3.data,
+        'rating_p15_const4': form.rating_const4.data,
+        'rating_p15_const5': form.rating_const5.data,
+        'rating_p15_const6': form.rating_const6.data,
+        'rating_p15_const7': form.rating_const7.data,
+        'rating_p15_const8': form.rating_const8.data,
+        'rating_p15_const9': form.rating_const9.data,
+        'rating_p15_const10': form.rating_const10.data,
+        'rating_p15_const11': form.rating_const11.data,
+        'rating_p15_const12': form.rating_const12.data,
+        'rating_p15_const13': form.rating_const13.data,
+        'rating_p15_const14': form.rating_const14.data,
+        'rating_p15_const15': form.rating_const15.data}
+        db_session.query(SurveyData).filter_by(id=session['user_id']).update(rating_fields)
+        db_session.commit()
+        # Working out whether we have more ratings to do or not...
+        return redirect(url_for('ratings16'))
+    return render_template('ratings.html', form=form, target=target,
+        construct1pos_toshow = session.get('construct1pos'),
+        construct1neg_toshow = session.get('construct1neg'),
+        construct2pos_toshow = session.get('construct2pos'),
+        construct2neg_toshow = session.get('construct2neg'),
+        construct3pos_toshow = session.get('construct3pos'),
+        construct3neg_toshow = session.get('construct3neg'),
+        construct4pos_toshow = session.get('construct4pos'),
+        construct4neg_toshow = session.get('construct4neg'),
+        construct5pos_toshow = session.get('construct5pos'),
+        construct5neg_toshow = session.get('construct5neg'),
+        construct6pos_toshow = session.get('construct6pos'),
+        construct6neg_toshow = session.get('construct6neg'),
+        construct7pos_toshow = session.get('construct7pos'),
+        construct7neg_toshow = session.get('construct7neg'),
+        construct8pos_toshow = session.get('construct8pos'),
+        construct8neg_toshow = session.get('construct8neg'),
+        construct9pos_toshow = session.get('construct9pos'),
+        construct9neg_toshow = session.get('construct9neg'),
+        construct10pos_toshow = session.get('construct10pos'),
+        construct10neg_toshow = session.get('construct10neg'),
+        construct11pos_toshow = session.get('construct11pos'),
+        construct11neg_toshow = session.get('construct11neg'),
+        construct12pos_toshow = session.get('construct12pos'),
+        construct12neg_toshow = session.get('construct12neg'),
+        construct13pos_toshow = session.get('construct13pos'),
+        construct13neg_toshow = session.get('construct13neg'),
+        construct14pos_toshow = session.get('construct14pos'),
+        construct14neg_toshow = session.get('construct14neg'),
+        construct15pos_toshow = session.get('construct15pos'),
+        construct15neg_toshow = session.get('construct15neg'),    )
+
+@app.route('/ratings/16', methods=['GET', 'POST'])
+def ratings16():
+    target = 'Yourself'
+    form = RatingForm()
+    if request.method == 'POST':
+        # saving form data as session variables
+        session['rating_p16_const1'] = form.rating_const1.data
+        session['rating_p16_const2'] = form.rating_const2.data
+        session['rating_p16_const3'] = form.rating_const3.data
+        session['rating_p16_const4'] = form.rating_const4.data
+        session['rating_p16_const5'] = form.rating_const5.data
+        session['rating_p16_const6'] = form.rating_const6.data
+        session['rating_p16_const7'] = form.rating_const7.data
+        session['rating_p16_const8'] = form.rating_const8.data
+        session['rating_p16_const9'] = form.rating_const9.data
+        session['rating_p16_const10'] = form.rating_const10.data
+        session['rating_p16_const11'] = form.rating_const11.data
+        session['rating_p16_const12'] = form.rating_const12.data
+        session['rating_p16_const13'] = form.rating_const13.data
+        session['rating_p16_const14'] = form.rating_const14.data
+        session['rating_p16_const15'] = form.rating_const15.data
+        # updating the database with the new batch of ratings (via a dictionary first)
+        rating_fields = {'rating_p16_const1': form.rating_const1.data,
+        'rating_p16_const2': form.rating_const2.data,
+        'rating_p16_const3': form.rating_const3.data,
+        'rating_p16_const4': form.rating_const4.data,
+        'rating_p16_const5': form.rating_const5.data,
+        'rating_p16_const6': form.rating_const6.data,
+        'rating_p16_const7': form.rating_const7.data,
+        'rating_p16_const8': form.rating_const8.data,
+        'rating_p16_const9': form.rating_const9.data,
+        'rating_p16_const10': form.rating_const10.data,
+        'rating_p16_const11': form.rating_const11.data,
+        'rating_p16_const12': form.rating_const12.data,
+        'rating_p16_const13': form.rating_const13.data,
+        'rating_p16_const14': form.rating_const14.data,
+        'rating_p16_const15': form.rating_const15.data}
+        db_session.query(SurveyData).filter_by(id=session['user_id']).update(rating_fields)
+        db_session.commit()
+        # Working out whether we have more ratings to do or not...
+        return redirect(url_for('results'))
+    return render_template('ratings.html', form=form, target=target,
+        construct1pos_toshow = session.get('construct1pos'),
+        construct1neg_toshow = session.get('construct1neg'),
+        construct2pos_toshow = session.get('construct2pos'),
+        construct2neg_toshow = session.get('construct2neg'),
+        construct3pos_toshow = session.get('construct3pos'),
+        construct3neg_toshow = session.get('construct3neg'),
+        construct4pos_toshow = session.get('construct4pos'),
+        construct4neg_toshow = session.get('construct4neg'),
+        construct5pos_toshow = session.get('construct5pos'),
+        construct5neg_toshow = session.get('construct5neg'),
+        construct6pos_toshow = session.get('construct6pos'),
+        construct6neg_toshow = session.get('construct6neg'),
+        construct7pos_toshow = session.get('construct7pos'),
+        construct7neg_toshow = session.get('construct7neg'),
+        construct8pos_toshow = session.get('construct8pos'),
+        construct8neg_toshow = session.get('construct8neg'),
+        construct9pos_toshow = session.get('construct9pos'),
+        construct9neg_toshow = session.get('construct9neg'),
+        construct10pos_toshow = session.get('construct10pos'),
+        construct10neg_toshow = session.get('construct10neg'),
+        construct11pos_toshow = session.get('construct11pos'),
+        construct11neg_toshow = session.get('construct11neg'),
+        construct12pos_toshow = session.get('construct12pos'),
+        construct12neg_toshow = session.get('construct12neg'),
+        construct13pos_toshow = session.get('construct13pos'),
+        construct13neg_toshow = session.get('construct13neg'),
+        construct14pos_toshow = session.get('construct14pos'),
+        construct14neg_toshow = session.get('construct14neg'),
+        construct15pos_toshow = session.get('construct15pos'),
+        construct15neg_toshow = session.get('construct15neg'),    )
+
+###         else:
+#            user_updated = db_session.query(SurveyData).order_by(SurveyData.id.desc()).first()
+#            print(user_updated.rating_p15_const15)
+#
+
+
 ################# Phase IV - Results ###########################
 '''These are largely computed in another module and then imported here. I guess I make a dataframe to input into the function.
 Then, have the function return a bunch of objects that I can display.'''
@@ -785,18 +1877,26 @@ def results():
 #    print(session)
 #    const = get_construct_names()
 #    targets = get_people_names()
-    ratings_matrix = get_ratings_matrix()
+    try:
+        ratings_matrix = get_ratings_matrix()
+        loadings_matrix = make_loadings_matrix(ratings_matrix) # Compute the loading matrix
+        duplicates = ratings_matrix.duplicated()
+        targets_matrix = make_targets_matrix(ratings_matrix, loadings_matrix)
+        paragraph = loadings_describer(loadings_matrix, targets_matrix)
+        loadings_map = draw_loadings_heatmap(loadings_matrix)
+        targets_map = draw_targets_heatmap(targets_matrix)
+        standings_chart = draw_standing_charts(targets_matrix)
+        return render_template("results.html", paragraph=paragraph, loadings_map=loadings_map, targets_map=targets_map, standings_chart=standings_chart)
+    except linalg.LinAlgError:
+        ratings_matrix = get_ratings_matrix()
+        return render_template("similar_people.html")
+    except ValueError:
+        ratings_matrix = get_ratings_matrix()
+        print(ratings_matrix)
+        return render_template("vague_ratings.html", tables=[ratings_matrix.to_html(classes='data')], titles=ratings_matrix.columns.values)
+    else:
+        return render_template("errors.html", tables=[ratings_matrix.to_html(classes='data')], titles=ratings_matrix.columns.values)
     # Run the correct functions from the results module
-    loadings_matrix = make_loadings_matrix(ratings_matrix) # Compute the loading matrix
-    targets_matrix = make_targets_matrix(ratings_matrix, loadings_matrix) # Compute the person matrix
-    paragraph = loadings_describer(loadings_matrix, targets_matrix)
-    print('Testing the string paragraph...')
-    print(paragraph)
-    print('END OF TEST')
-    loadings_map = draw_loadings_heatmap(loadings_matrix)
-    targets_map = draw_targets_heatmap(targets_matrix)
-    standings_chart = draw_standing_charts(targets_matrix)
-    return render_template("results.html", paragraph=paragraph, loadings_map=loadings_map, targets_map=targets_map, standings_chart=standings_chart)
 
     # Then make the right results page (this is on the results.html template)
 #    return render_template('results.html', tables=[targets_m.to_html(classes='data')], titles=targets_m.columns.values)
