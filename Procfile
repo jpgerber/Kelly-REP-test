@@ -1,2 +1,2 @@
-web gunicorn dynamic-personality-test:KellyTest
+web gunicorn dynamic-personality-test:KellyTest.py
  
