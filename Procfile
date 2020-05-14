@@ -1,2 +1,2 @@
-web: python KellyTest.py
+web: gunicorn KellyTest.py
  
