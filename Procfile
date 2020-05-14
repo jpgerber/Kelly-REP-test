@@ -1,2 +1,2 @@
-web gunicorn dynamic-personality-test:app
+web gunicorn dynamic-personality-test:KellyTest
  
