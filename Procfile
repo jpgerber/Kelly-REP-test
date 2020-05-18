@@ -1,2 +1,1 @@
-web: python KellyTest.py
- 
+web: gunicorn app:app
