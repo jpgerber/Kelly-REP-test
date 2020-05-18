@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="jumbotron">
+
+<h1> Your results </h1>
+<p> Your ratings file is shown below. </p>
+<p>{% for table in tables %}
+            {{titles[loop.index]}}
+            {{ table|safe }}
+{% endfor %}
+</p>
+
+<p> We recommend thinking more carefully about the differences between people and then re-entering some of your ratings
+  by clicking the back button.</p>
+
+<h2> Do you still need more information?</h2>
+This is a brief version of a longer test by George Kelly. The full version of this test and/or further interpretation of these results can be accessed via a consultation with J. P. Gerber, Ph.D.
+
+</div>
+{% endblock %}
